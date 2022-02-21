@@ -1,49 +1,45 @@
-import React,{useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import CartContext from "../../store/cart-context";
 import CartIcon from "../Cart/CartIcon";
-import styles from './HeaderCartButton.module.css';
+import styles from "./HeaderCartButton.module.css";
 
-const HeaderCartButton = (props) =>{
+const HeaderCartButton = (props) => {
+  const [btnIsHighlighed, setBtnIsHighlighted] = useState(false);
+  const cartCtx = useContext(CartContext);
 
-    const [btnIsHighlighed, setBtnIsHighlighted] = useState(false);
-    const cartCtx = useContext(CartContext);
+  const { items } = cartCtx;
 
-    const { items } = cartCtx;
+  const noofCartItems = items.reduce((curNum, item) => {
+    return curNum + item.amount;
+  }, 0);
 
-    const noofCartItems = items.reduce((curNum, item)=>{
-        return curNum + item.amount;
-    }, 0);
+  const btnClasses = `${styles.button} ${btnIsHighlighed ? styles.bump : ""}`;
 
-    
+  useEffect(() => {
+    if (items.length === 0) {
+      return;
+    }
+    setBtnIsHighlighted(true);
 
-    const btnClasses = `${styles.button} ${btnIsHighlighed ? styles.bump : ''}`;
+    const timer = setTimeout(() => {
+      setBtnIsHighlighted(false);
+    }, 300);
 
-    useEffect(() => {
-        if(items.length === 0){
-            return;
-        }
-        setBtnIsHighlighted(true);
+    //Clean up Function
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [items]);
 
-        const  timer = setTimeout(() => {
-            setBtnIsHighlighted(false);
-        }, 300);
-
-        //Clean up Function
-        return() => {
-            clearTimeout(timer);
-        }
-
-    }, [items]);
-
-    return(
-        <button className={btnClasses} onClick={props.onClick}>
-            <span className={styles.icon}>
-                <CartIcon/>
-            </span>
-            <span>Your Cart</span>
-            <span className={styles.badge}>{noofCartItems}</span>
-        </button>
-    )
+  return (
+    <button className={btnClasses} onClick={props.onClick}>
+      <span className={styles.icon}>
+        <CartIcon />
+      </span>
+      <span>Your Cart</span>
+      <span className={styles.badge}>{noofCartItems}</span>
+    </button>
+  );
 };
 
 export default HeaderCartButton;
